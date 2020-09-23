@@ -1,0 +1,27 @@
+{
+  "name": "mystudy",
+  "version": "1.0.0",
+  "description": "study records",
+  "main": "main.js",
+  "scripts": {
+    "test": "none",
+    "dev": "vuepress dev docs",
+    "build": "vuepress build docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Somefuture/study-notes.git"
+  },
+  "keywords": [
+    "study"
+  ],
+  "author": "lynne.liu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Somefuture/study-notes/issues"
+  },
+  "homepage": "https://github.com/Somefuture/study-notes#readme",
+  "devDependencies": {
+    "vuepress": "^1.5.4"
+  }
+}
