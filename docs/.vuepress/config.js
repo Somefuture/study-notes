@@ -1,11 +1,14 @@
 module.exports = {
-  title: 'My Study Notes',
-  description: 'Just playing around',
+  title: '学习笔记',
+  description: '学习笔记',
+  head: [
+    ['link', { rel: 'icon', href: '/xm.png' }]
+  ],
   themeConfig: {
     logo: '/xm.png',
     lastUpdated: 'Last Updated',
     nav: [
-      { text: 'Home', link: '/' },
+      { text: '主页', link: '/' },
       { text: 'Github', link: 'https://github.com/Somefuture' },
     ],
     sidebar: [
@@ -19,7 +22,7 @@ module.exports = {
         collapsable: true, // 可选的, 默认值是 true,
         sidebarDepth: 1,    // 可选的, 默认值是 1
         children: [
-          {path:'/sept/day-one', title: '第一篇'}
+          {path:'/sept/url-action', title: '第一篇：从浏览器地址栏输入url开始'}
         ]
       },
     ]
