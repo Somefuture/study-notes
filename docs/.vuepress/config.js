@@ -4,6 +4,7 @@ module.exports = {
   head: [
     ['link', { rel: 'icon', href: '/xm.png' }]
   ],
+  plugins: ['@vuepress/back-to-top'],
   themeConfig: {
     logo: '/xm.png',
     lastUpdated: 'Last Updated',
