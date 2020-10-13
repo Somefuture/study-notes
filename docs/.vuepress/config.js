@@ -24,7 +24,8 @@ module.exports = {
                 children: [
                     { path: '/sept/url-action', title: '第一篇：从浏览器地址栏输入url开始' },
                     { path: '/sept/deep-clone', title: '第二篇：走进lodash深拷贝' },
-                    { path: '/sept/interview-one', title: '第三篇：面试题解之输出代码结果篇' }
+                    { path: '/sept/interview-one', title: '第三篇：面试题解之输出代码结果篇' },
+                    { path: '/sept/interview-two', title: '第四篇：面试题解之编程题' }
                 ]
             },
         ]
