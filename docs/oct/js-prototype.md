@@ -86,36 +86,100 @@ console.log(p.m()); // 5
   console.log(Object.prototype.__proto__) // null
 ```
 
-### 在项目中使用原型链
+### 实现继承
 
 1. 用Js实现多重继承
 
-```js
-function M1() {
-    this.hello = 'hello';
-  }
-  M1.prototype.m1 = ()=>{
-      console.log('fun m1')
-  }
-  function M2() {
-    this.world = 'world';
-  }
-  M2.prototype.m2 = ()=>{
-    console.log('fun m2')
-  }
+    ```js
+    function M1() {
+        this.hello = 'hello';
+      }
+      M1.prototype.m1 = ()=>{
+          console.log('fun m1')
+      }
+      function M2() {
+        this.world = 'world';
+      }
+      M2.prototype.m2 = ()=>{
+        console.log('fun m2')
+      }
 
-  // 就很奇怪，哎，打算好好把红宝书相关的部分看一看
+      // 就很奇怪，哎，打算好好把红宝书相关的部分看一看
 
-  function S() {
-      const m1 = new M1()
-      const m2 = new M2()
-      const obj = Object.assign({}, m1, m2)
-      obj.__proto__ = Object.assign({}, M1.prototype, M2.prototype)
-      return obj
+      function S() {
+          const m1 = new M1()
+          const m2 = new M2()
+          const obj = Object.assign({}, m1, m2)
+          obj.__proto__ = Object.assign({}, M1.prototype, M2.prototype)
+          return obj
+      }
+      function S() {
+          M1.call(this)
+          M2.call(this)
+      }
+      // 为S的prototype 提供M1的Prototype的__proto__
+      S.prototype = Object.create(M1.prototype);
+      // 混合其它的prototype
+      Object.assign(S.prototype, M2.prototype);
+      // 重新指定constructor
+      S.prototype.constructor = S;
+      console.log(s.hello) // hello
+      console.log(s.world) // world
+      s.m1() // fun m1
+      s.m2() // fun m2
+    ```
+
+### Object.create
+
+1. 如上面的例子，使用Object.create 实现类式继承
+
+2. 使用Object.create 的propertyObject 参数
+
+    ```js
+    var o；
+
+    // 创建一个原型为null的空对象
+    o = Object.create(null);
+
+    // 以字面量形式创建一个空对象
+    o = {}
+    // 实际上等价于
+    o = Object.create(Object.prototype);
+
+    o = Object.create(Object.prototype, {
+      foo: {
+        writable:true,
+        configurable:true,
+        value: "hello"
+      },
+      // bar会成为所创建对象的访问器属性
+      bar: {
+        configurable: false,
+        get: function() { return 10 },
+        set: function(value) {
+          console.log("Setting `o.bar` to", value);
+        }
+      }
+    })
+    ```
+
+3. 实现一个Object.create()
+
+  ```js
+  if (typeof Object.create !== "function") {
+    Object.create = function (proto, propertiesObject) {
+        if (typeof proto !== 'object' && typeof proto !== 'function') {
+            throw new TypeError('Object prototype may only be an Object: ' + proto);
+        } else if (proto === null) {
+            throw new Error("This browser's implementation of Object.create is a shim and doesn't support 'null' as the first argument.");
+        }
+
+        if (typeof propertiesObject !== 'undefined') throw new Error("This browser's implementation of Object.create is a shim and doesn't support a second argument.");
+
+        function F() {}
+        F.prototype = proto;
+
+        return new F();
+    };
   }
-  let s =  new S()
-  console.log(s.hello)
-  console.log(s.world)
-  s.m1()
-  s.m2()
-```
+  ```
