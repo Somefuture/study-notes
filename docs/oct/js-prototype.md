@@ -369,3 +369,8 @@ child.getNumber(1); // Uncaught TypeError: child.getNumber is not a function 父
 缺点：父类的方法无法被复用
 
 #### 组合继承
+
+## 参考
+
+- [1] [一篇文章理解JS继承——原型链/构造函数/组合/原型式/寄生式/寄生组合/Class extends](https://segmentfault.com/a/1190000015727237)
+- [2] [js继承、构造函数继承、原型链继承、组合继承、组合继承优化、寄生组合继承](https://segmentfault.com/a/1190000015216289)
