@@ -86,49 +86,6 @@ console.log(p.m()); // 5
   console.log(Object.prototype.__proto__) // null
 ```
 
-### 实现继承
-
-1. 用Js实现多重继承
-
-    ```js
-    function M1() {
-        this.hello = 'hello';
-      }
-      M1.prototype.m1 = ()=>{
-          console.log('fun m1')
-      }
-      function M2() {
-        this.world = 'world';
-      }
-      M2.prototype.m2 = ()=>{
-        console.log('fun m2')
-      }
-
-      // 就很奇怪，哎，打算好好把红宝书相关的部分看一看
-
-      function S() {
-          const m1 = new M1()
-          const m2 = new M2()
-          const obj = Object.assign({}, m1, m2)
-          obj.__proto__ = Object.assign({}, M1.prototype, M2.prototype)
-          return obj
-      }
-      function S() {
-          M1.call(this)
-          M2.call(this)
-      }
-      // 为S的prototype 提供M1的Prototype的__proto__
-      S.prototype = Object.create(M1.prototype);
-      // 混合其它的prototype
-      Object.assign(S.prototype, M2.prototype);
-      // 重新指定constructor
-      S.prototype.constructor = S;
-      console.log(s.hello) // hello
-      console.log(s.world) // world
-      s.m1() // fun m1
-      s.m2() // fun m2
-    ```
-
 ### Object.create
 
 1. 如上面的例子，使用Object.create 实现类式继承
@@ -183,3 +140,232 @@ console.log(p.m()); // 5
     };
   }
   ```
+
+### 扩展原型链的方法
+
+#### New-initialization
+
+  ```js
+  function foo(){}
+  foo.prototype = {
+    foo_prop: 'foo val'
+  };
+  function bar(){}
+  var proto = new foo;
+  proto.bar_prop = 'bar val';
+  bar.prototype = proto;
+  var inst = new bar;
+  console.log(inst.foo_prop); // foo val
+  console.log(inst.bar_prop); // bar val
+  ```
+
+  优势：支持目前所有的浏览器。这种方法非常快，且符合标准，并且充分利用JIT优化（JIT优化：just in time 编译器，被大多数的浏览器引入。[相关阅读](https://github.com/cnsnake11/blog/blob/master/%E5%85%B6%E5%AE%83/WebAssembly(2-2)A%20crash%20course%20in%20just-in-time%20(JIT)%20compilers.md)）。
+
+  缺陷：使用这个方法进行拓展的时候，必须对相关函数进行初始化。在初始化过程中，可能会将一些不需要的方法放在对象上。初始化只生成一次，可能会带来问题。
+
+#### 使用Object.create
+
+  ```js
+  function foo(){}
+  foo.prototype = {
+    foo_prop: 'foo val'
+  };
+  function bar(){}
+  var proto = Object.create(foo.prototype);
+  proto.bar_prop = 'bar val';
+  bar.prototype = proto;
+  var inst = new bar;
+  console.log(inst.foo_prop); // foo val
+  console.log(inst.bar_prop); // bar val
+
+  // 或者直接在Object.create 的第二个参数中添加
+  function foo(){}
+  foo.prototype = {
+    foo_prop: "foo val"
+  };
+  function bar(){}
+  var proto = Object.create(
+    foo.prototype,
+    {
+      bar_prop: {
+        value: 'bar val'
+      }
+    }
+  );
+  bar.prototype = proto;
+  var inst = new bar;
+  console.log(inst.foo_prop); // foo val
+  console.log(inst.bar_prop); // bar val
+  ```
+
+  优势：支持当前所有非微软版本或者IE9版本以上的浏览器，允许一次性的直接设置__proto__属性，以便浏览器能更好的优化对象。同时允许通过Object.create(null) 来创建一个没有原型的对象。
+
+  缺陷： 不支持IE8以下的版本；慢对象初始化即Object.create 在加载到的时候就会进行初始化，因此，如果第二个参数过大的话，可能会造成严重的性能问题。
+
+#### Object.setPrototypeOf
+
+  ```js
+
+  function foo(){}
+  foo.prototype = {
+    foo_prop: "foo val"
+  };
+  function bar(){}
+  var proto = {
+    bar_prop: "bar val"
+  };
+  Object.setPrototypeOf(
+    proto, foo.prototype
+  );
+  bar.prototype = proto;
+  var inst = new bar;
+  console.log(inst.foo_prop);
+  console.log(inst.bar_prop);
+
+  ```
+
+  优点：支持所有现代浏览器和IE9+浏览器。允许动态操作对象的原型，甚至能强制给Object.create(null)创建出来的没有原型的对象添加一个原型
+
+  缺陷：很多浏览器优化了原型，尝试在调用实例之前猜测方法在内存中的位置，但是这种动态设置原型干扰了所有的优化，甚至可能使浏览器为了运行成功，使用完全未经优化的代码进行重新编译，会极大的影响js的运行效率。
+
+#### __proto__
+
+  ```js
+  var inst = {
+    __proto__: {
+      bar_prop: "bar val",
+      __proto__: {
+        foo_prop: "foo val",
+        __proto__: Object.prototype
+      }
+    }
+  };
+  console.log(inst.foo_prop);
+  console.log(inst.bar_prop)
+  ```
+
+  优点：支持所有现代浏览器以及IE11以上版本的浏览器。将__proto__设置为非对象的值会静默失败，并不会抛出错误。
+
+  缺陷：该方法不具备性能可言，和setPrototypeOf一样，对浏览器运行优化不友好
+
+### 用Js实现多重继承
+
+  ```js
+  function M1() {
+      this.hello = 'hello';
+    }
+    M1.prototype.m1 = ()=>{
+        console.log('fun m1')
+    }
+    function M2() {
+      this.world = 'world';
+    }
+    M2.prototype.m2 = ()=>{
+      console.log('fun m2')
+    }
+    /* 我一开始的写法
+    function S() {
+        const m1 = new M1()
+        const m2 = new M2()
+        const obj = Object.assign({}, m1, m2)
+        obj.__proto__ = Object.assign({}, M1.prototype, M2.prototype)
+        return obj
+    }
+    */
+    // 查阅相关资料的写法
+    function S() {
+        M1.call(this)
+        M2.call(this)
+    }
+    // 将M1的prototype 赋给S
+    S.prototype = Object.create(M1.prototype);
+    // 混合M2的prototype
+    Object.assign(S.prototype, M2.prototype);
+    // 重新指定constructor
+    S.prototype.constructor = S;
+    console.log(s.hello) // hello
+    console.log(s.world) // world
+    s.m1() // fun m1
+    s.m2() // fun m2
+  ```
+
+### 实现继承的一些方法
+
+![关于继承](/images/extend.png)
+
+#### 原型链继承
+
+核心：将父类的实例作为子类的原型
+
+```js
+function Parent(name){
+  this.name = name
+  this.list = [1,2,3]
+}
+Parent.prototype.getNumber = function(index){
+  console.log(this.list[index])
+}
+
+function Child(){}
+Child.prototype = new Parent();
+Child.prototype.constructor = Child;
+
+const child = new Child()
+console.log(child.name) // undefined 无法传参
+console.log(child.list) // [1,2,3]
+child.list[0] = 4
+
+const child2 = new Child()
+console.log(child2.list) // [4,2,3] 引用类型被共享了
+
+child1.getNumber(1); // 2
+child.getNumber(1); // 2 方法可复用
+```
+
+优点： 父类方法可以复用
+
+缺点：
+
+  1. 父类的引用属性会被所有子类实例共享
+  2. 子类构建实例时不能向父类传递参数
+
+#### 构造函数继承
+
+核心：将父类构造函数的内容复制给了子类的构造函数。这是所有继承中唯一一个不涉及到prototype的继承。
+
+```js
+function Parent(name){
+  this.name = name
+  this.list = [1,2,3]
+}
+Parent.prototype.getNumber = function(index){
+  console.log(this.list[index])
+}
+
+function Child(name){
+  Parent.call(this, name)
+}
+
+const child = new Child('child-one'); //子类构建实例时可以向父类传参数
+const child2 = new Child('child-two');
+const parent = new Parent('parent');
+child.getName(); // child-one
+child2.getName(); // child-two
+
+console.log(child.list, child2.list) // [1,2,3] [1,2,3]
+child.list[0] = 0;
+console.log(child.list, child2.list) // [0,2,3] [1,2,3]引用属性不会被共享
+
+parent.getNumber(2); // 3
+child.getNumber(1); // Uncaught TypeError: child.getNumber is not a function 父类的方法不能复用
+
+```
+
+优点：
+
+  1. 父类的引用属性不会被共享
+  2. 子类构建实例时可以向父类传递参数
+
+缺点：父类的方法无法被复用
+
+#### 组合继承

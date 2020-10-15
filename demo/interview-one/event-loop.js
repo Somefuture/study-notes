@@ -46,18 +46,18 @@
 
 // js实现多重继承
 
-// function M1() {
-//     this.hello = 'hello';
-//   }
-//   M1.prototype.m1 = ()=>{
-//       console.log('fun m1')
-//   }
-//   function M2() {
-//     this.world = 'world';
-//   }
-//   M2.prototype.m2 = ()=>{
-//     console.log('fun m2')
-//   }
+function M1() {
+    this.hello = 'hello';
+  }
+  M1.prototype.m1 = ()=>{
+      console.log('fun m1')
+  }
+  function M2() {
+    this.world = 'world';
+  }
+  M2.prototype.m2 = ()=>{
+    console.log('fun m2')
+  }
 
 //   function S() {
 //       const m1 = new M1()
@@ -67,21 +67,21 @@
 //       return obj
 //   }
 // 在S函数中调用M函数，并传入当前this
-// function S() {
-//     M1.call(this)
-//     M2.call(this)
-// }
-// // 为S的prototype 提供M1的Prototype的__proto__
-// S.prototype = Object.create(M1.prototype);
-// // 混合其它的prototype
-// Object.assign(S.prototype, M2.prototype);
-// // 重新指定constructor
-// S.prototype.constructor = S;
-// let s =  new S()
-// console.log(s.hello)
-// console.log(s.world)
-// s.m1()
-// s.m2()
+function S() {
+    M1.call(this)
+    M2.call(this)
+}
+// 为S的prototype 提供M1的Prototype的__proto__
+S.prototype = Object.create(M1.prototype);
+// 混合其它的prototype
+Object.assign(S.prototype, M2.prototype);
+// 重新指定constructor
+S.prototype.constructor = S;
+let s =  new S()
+console.log(s.hello)
+console.log(s.world)
+s.m1()
+s.m2()
 
 // 使用Object.create 的propertyObject 参数
 
