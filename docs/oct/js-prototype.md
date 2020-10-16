@@ -322,7 +322,7 @@ child1.getNumber(1); // 2
 child.getNumber(1); // 2 方法可复用
 ```
 
-优点： 父类方法可以复用
+优点： 父类的方法可以复用
 
 缺点：
 
@@ -369,6 +369,181 @@ child.getNumber(1); // Uncaught TypeError: child.getNumber is not a function 父
 缺点：父类的方法无法被复用
 
 #### 组合继承
+
+核心：原型式继承和构造函数继承的组合，兼具了二者的优点。
+
+```js
+function Parent(name){
+  this.name = name;
+  this.list = [1,2,3];
+  this.getName = function(){
+    console.log(this.name);
+  }
+}
+Parent.prototype.getNumber = function(index){
+  console.log(this.list[index]);
+}
+
+function Child(name){
+  Parent.call(this, name); // 将父类函数内容复制过来
+}
+
+Child.prototype = new Parent(); // 将父类实例作为子类的原型
+Child.prototype.constructor = Child;
+
+const child = new Child('child'); // 可以给父类传参
+const otherChild = new Child('other')
+
+child.getName(); // child
+otherChild.getName(); // other
+
+child.list[0] = 0;
+console.log(child.list, otherChild.list); // [0,2,3] [1,2,3] 父类的引用属性不会被共享
+
+child.getNumber(2); //3 父类的方法可以复用
+```
+
+优点：
+
+  1. 父类的方法可以被复用
+  2. 父类的引用属性不会被共享
+  3. 子类构建实例时可以向父类传递参数
+
+缺点：
+
+  调用了两次父类的构造函数，第一次给子类的原型添加了name、list、getName等属性，第二次又给子类的构造函数添加了父类的name、list、getName属性，从而覆盖了子类原型中的同名参数。这种被覆盖的情况造成了性能上的浪费
+
+#### 原型式继承
+
+核心： 原型式继承的object方法本质上是对参数对象的一个浅复制。ES5通过新增Object.create()方法规范化了原型式继承。
+
+```js
+const Parent = {
+  name: 'Bob',
+  list: [1,2,3],
+  getName(){
+    console.log(this.name)
+  }
+};
+
+const child = Object.create(Parent)
+const child2 = Object.create(Parent)
+
+child.getName(); // BOb 子类可以复用父类的方法和属性
+child.list[0] = 0;
+
+console.log(child.list, child2.list); // [0,2,3] [0,2,3] 子类共享父类的引用属性
+```
+
+优点：父类方法可以复用
+
+缺点：
+
+  1. 子类构建实例时无法传参
+  2. 父类引用属性会被所有子类实例共享
+
+#### 寄生式继承
+
+核心：使用原型式继承获得一个目标对象的浅复制，然后增强这个浅复制的能力
+
+```js
+const Parent = {
+  name: 'Bob',
+  list: [1,2,3],
+  getName(){
+    console.log(this.name)
+  }
+};
+
+const child = Object.create(Parent, {
+  // 通过第二个参数，给实例增加一个方法
+  getNumber: {
+    value: function(index) {
+      console.log(this.list[index])
+    }
+  }
+})
+
+child.getNumber(0) //1
+```
+
+优缺点：一种思路。可根据实际需求选择；
+
+#### 寄生组合继承
+
+核心：解决了组合继承中会两次调用父类的构造函数造成浪费的缺点。
+
+```js
+function Parent(name){
+  this.name = name;
+  this.list = [1,2,3];
+  this.getName = function(){
+    console.log(this.name);
+  }
+}
+Parent.prototype.getNumber = function(index){
+  console.log(this.list[index]);
+}
+
+// 实现寄生组合继承的代码 start
+function Child(name){
+  Parent.call(this, name); // 将父类函数内容复制过来
+}
+
+Child.prototype = Object.create(Parent.prototype) // 对父类原型进行复制，不会调用两次父类构造函数
+Child.prototype.constructor = Child; // 修改prototype的constructor的指向
+
+// 实现寄生组合继承的代码 end
+
+const child = new Child('child'); // 可以给父类传参
+const otherChild = new Child('other')
+
+child.getName(); // child
+otherChild.getName(); // other
+
+child.list[0] = 0;
+console.log(child.list, otherChild.list); // [0,2,3] [1,2,3] 父类的引用属性不会被共享
+
+child.getNumber(2); //3 父类的方法可以复用
+```
+
+优缺点：这是一种完美的继承方式
+
+#### ES6 Class extends
+
+核心：ES6继承的结果和寄生组合继承相似，本质上，ES6继承是一种语法糖。但是寄生组合继承是先创建子类实例this对象，然后再对其进行增强；而ES6继承是先将父类实例对象的属性和方法加到this上面（所以必须先调用super方法，然后再用子类的构造函数修改this）。
+
+```js
+class Parent{
+  constructor(name) {
+    this.name = name
+    this.list = [1,2,3]
+  }
+  // method
+  getName() {
+    console.log(this.name)
+  }
+  getNumber(index){
+    console.log(this.list[index])
+  }
+}
+const parent = new Parent('bob');
+console.log(parent.name); //bob
+
+class Child extends Parent{
+  constructor(name){
+    super(name) //调用超类构造函数并传入name参数
+  }
+  getChildName() {
+    console.log(this.name)
+  }
+}
+
+const child = new Child('mike');
+child.getName(); // mike
+child.list[0] = 0;
+console.log(parent.list); // [1,2,3]
+```
 
 ## 参考
 
