@@ -32,10 +32,58 @@
 
 // 统计正整数1 ~ n出现1的次数，暴力循环，数字过大的时候无法执行。
 
-function findOne(n){
-	let count = 0;
-	for(let i=0;i<=n;i++){
-		count+=String(i).split('').filter(item=>item==='1').length
+// function findOne(n){
+// 	let count = 0;
+// 	for(let i=0;i<=n;i++){
+// 		count+=String(i).split('').filter(item=>item==='1').length
+// 	}
+// 	return count;
+// }
+
+// 节流
+
+const throttle = (fun, delay) => {
+	// 节流的概念 技能CD,在cd时间内，你怎么按技能都没用，只有cd时间过了才会有效。
+	let last = null;
+	return function(...args) {
+		const that = this;
+		let now = + new Date();
+		if (!last || now - last > delay) {
+			fun.call(that, ...args);
+			last = now
+		}
 	}
-	return count;
 }
+
+let timeee = null
+
+const func = () => {
+	console.log(new Date().toTimeString())
+}
+
+const funAfter = throttle(func, 3000)
+timeee = setInterval(funAfter, 20)
+
+// 防抖
+
+const debounce = (fun, delay) => {
+	// 防抖的概念 按技能后有一个命中时间，在这个技能时间到达之前，重新按技能，就会重新计时，一直到到达时间过了之后，技能才会生效。
+	return function(...args) {
+		const that = this;
+		clearTimeout(fun.id);
+		fun.id = setTimeout(() => {
+			fun.call(that, ...args);
+		}, delay)
+	}
+}
+
+function ajax(content) {
+  console.log('ajax request ' + content)
+}
+let inputb = document.getElementById('debounce')
+
+let debounceAjax = debounce(ajax, 3000)
+
+inputb.addEventListener('keyup', function (e) {
+    debounceAjax(e.target.value)
+})

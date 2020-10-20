@@ -35,6 +35,7 @@ module.exports = {
                 sidebarDepth: 1, // 可选的, 默认值是 1
                 children: [
                     { path: '/oct/js-prototype', title: '第一篇：js的继承与原型链' },
+                    { path: '/oct/promise', title: '第二篇：走进promise' },
                 ]
             }
         ]

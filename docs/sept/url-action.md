@@ -353,7 +353,7 @@ http2将每一个request切割为更小的帧，有header帧和body帧，并且�
 
 * GUP加速举例：
 
-    通过改变元素的teansform实现移动、伸缩变换，而非改变物理的left、top、width、height。从而避免layout和paint，让动画效果更加流畅
+    通过改变元素的transform实现移动、伸缩变换，而非改变物理的left、top、width、height。从而避免layout和paint，让动画效果更加流畅
 
 * 使用GPU加速提升动画性能时，最好给当前动画元素增加一个高一点的z-index属性，人为干扰复合层的排序，可以有效减少浏览器创建不必要的复合层，提升渲染性能
 
