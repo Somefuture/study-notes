@@ -3,6 +3,10 @@ import './style.less'
 // import './index.css'
 import Iimg from './a.gif'
 
+const data = require('./data')
+
+console.log(data)
+
 // const json = require("./data.json")
 /* import { a1 as aaa, a2 as bbb } from './ma'
 

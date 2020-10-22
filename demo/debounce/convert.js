@@ -29,3 +29,14 @@ function convert(list) {
 }
 
 console.log(convert(list))
+
+const request = (data, isMock) => {
+	if (isMock) {
+		return new Promise(() => {
+			// 拿本地的json文件内容
+			fetch(data)
+		})
+	} else {
+		// 正常走请求
+	}
+}
