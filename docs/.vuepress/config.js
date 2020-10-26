@@ -36,6 +36,7 @@ module.exports = {
                 children: [
                     { path: '/oct/js-prototype', title: '第一篇：js的继承与原型链' },
                     { path: '/oct/promise', title: '第二篇：走进promise' },
+                    { path: '/oct/web-safe', title: '第三篇：web安全' },
                 ]
             }
         ]
